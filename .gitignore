@@ -1,8 +1,11 @@
 # model artifacts
 artifacts/models/
 
-# secrets
+# settings
 config/settings.json
+.env
+*.key
+*.pem
 
 # Outputs & caches
 *.log

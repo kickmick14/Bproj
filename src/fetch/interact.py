@@ -5,7 +5,7 @@
 # retrieve data from the Binance Testnet
 #######################################
 import pandas as pd
-import connect
+import fetch.connect as connect
 
 def retrieve_dataframe(client, pair, kline_period, timeframe, future_window, threshold):
 

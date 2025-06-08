@@ -4,7 +4,9 @@
 # Script to train and save new models
 # whcih can then be loaded into main.py
 #######################################
-import connect, interact, src.python.models.get_model as get_model
+import fetch.connect as connect
+import fetch.interact as interact
+import get_model
 import tensorflow as tf
 from sklearn.metrics import classification_report, confusion_matrix
 

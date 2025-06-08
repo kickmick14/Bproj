@@ -3,7 +3,9 @@
 # @date 07/06/2025
 # Main script of binance testnet project, used to centrally integrate several separate components
 #######################################
-import connect, interact, src.python.models.get_model as get_model
+import fetch.connect as connect
+import fetch.interact as interact
+import models.get_model as get_model
 import pandas as pd
 
 settingsPath = "settings/settings.json"
