@@ -1,0 +1,11 @@
+# model artifacts
+artifacts/models/
+
+# secrets
+config/settings.json
+
+# Outputs & caches
+*.log
+*.png
+src/python/__pycache__
+TrainingPlots/
