@@ -7,8 +7,10 @@ config/settings.json
 *.key
 *.pem
 
-# Outputs & caches
+# Outputs, caches & metainfo
 *.log
 *.png
 src/python/__pycache__
 TrainingPlots/
+data/
+*.egg-info/

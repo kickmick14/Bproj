@@ -5,13 +5,12 @@
 #######################################
 import fetch.connect as connect
 import fetch.interact as interact
-import models.get_model as get_model
 import pandas as pd
 
-settingsPath = "settings/settings.json"
+settingsPath = "config/settings.json"
 
-test_client = connect.connect_client(settingsPath, "test") # For interacting with test account
-main_client = connect.connect_client(settingsPath, "main") # For collecting more kline data
+test_client = connect.client(settingsPath, "test") # For interacting with test account
+main_client = connect.client(settingsPath, "main") # For collecting more kline data
 test_account = test_client.get_account()
 
 df_options = {
@@ -24,6 +23,3 @@ df_options = {
 }
 
 df = interact.retrieve_dataframe(**df_options)
-
-model, history = get_model.model(df)
-get_model.plot_model(history)
