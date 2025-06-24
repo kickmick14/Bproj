@@ -1,7 +1,8 @@
 #######################################
 # @author Michael Kane
 # @date 07/06/2025
-# Securing connections to Binance Testnet
+# Securing connections to Binance
+# Testnet
 #######################################
 from binance.client import Client
 import json, os

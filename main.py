@@ -1,7 +1,9 @@
 #######################################
 # @author Michael Kane
 # @date 07/06/2025
-# Main script of binance testnet project, used to centrally integrate several separate components
+# Main script of binance testnet project,
+# used to centrally integrate several
+# separate components
 #######################################
 import fetch.connect as connect
 import fetch.interact as interact
