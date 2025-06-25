@@ -10,7 +10,7 @@ import models.buildModel as buildModel
 import models.plotModel as plot
 import models.analyseModel as analyse
 import os
-os.environ["MODEL_NAME"] = MODEL_NAME = "mk1" # Model name to be saved
+os.environ["MODEL_NAME"] = MODEL_NAME = "mk2" # Model name to be saved
 from settings import ARTIFACTS_DIR, DATA_DIR, CREDENTIALS_PATH
 
 test_client = connect.client(CREDENTIALS_PATH, "test")  # Test account client
@@ -20,13 +20,14 @@ test_account = test_client.get_account()                # Get test account infor
 df_options = {                         # df options for retrieving klines
     "client": main_client,             # Client to use
     "pair": "ETHUSDT",                 # Pair to trade
-    "kline_period": "1h",              # Period of klines
-    "timeframe": "90 days ago UTC",    # Timeframe of kline data
-    "future_window": 3,                # How far into future to consider for pct change
+    "kline_period": "1h",             # Period of klines
+    "timeframe": "90 days ago UTC",  # Timeframe of kline data
+    "future_window": 1,                # How far into future to consider for pct change
     "threshold": 0.01                  # 1% change for trigger
 }
 
-df = interact.retrieve_dataframe(**df_options)                      # Use the defined options to retrieve dataframe of binance data
+klines_df = interact.retrieve_market_data(**df_options)             # Use the defined options to retrieve dataframe of binance data
+df = interact.add_indicators(klines_df, **df_options)               # Add the indicators and labels to the dataframe
 features = df[["return_1h", "rolling_mean_6h", "rolling_std_6h"]]   # "Training data"
 labels = df["label"]                                                # Binary classifier
 
