@@ -25,3 +25,8 @@ df_options = {
 }
 
 df = interact.retrieve_dataframe(**df_options)
+
+features = df[["return_1h", "rolling_mean_6h", "rolling_std_6h"]] # "Training data"
+labels = df["label"]                                              # Binary classifier
+
+print(features, "\n \n \n", labels)
