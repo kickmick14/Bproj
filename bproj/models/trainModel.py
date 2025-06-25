@@ -10,18 +10,8 @@ import models.buildModel as buildModel
 import models.plotModel as plot
 import models.analyseModel as analyse
 import os
-
-# Model name to be saved
-ModelName = "mk1"
-# Set local and environmental paths
-os.environ["BASE_DIR"]         = BASE_DIR         = "/Users/s2417964/VSProjects/bproj"
-os.environ["ARTIFACTS_DIR"]    = ARTIFACTS_DIR    = f"{BASE_DIR}/artifacts/models"
-os.environ["DATA_DIR"]         = DATA_DIR         = f"{BASE_DIR}/data/{ModelName}"
-os.environ["CREDENTIALS_PATH"] = CREDENTIALS_PATH = f"{BASE_DIR}/config/settings.json"
-
-# Make directories if they don't already exist
-os.makedirs(ARTIFACTS_DIR, exist_ok=True)
-os.makedirs(DATA_DIR, exist_ok=True)
+os.environ["MODEL_NAME"] = MODEL_NAME = "mk1" # Model name to be saved
+from settings import ARTIFACTS_DIR, DATA_DIR, CREDENTIALS_PATH
 
 test_client = connect.client(CREDENTIALS_PATH, "test")  # Test account client
 main_client = connect.client(CREDENTIALS_PATH, "main")  # Main account client
@@ -43,7 +33,7 @@ labels = df["label"]                                                # Binary cla
 x_train, x_test, y_train, y_test = buildModel.splitData(features, labels)   # Split data for training and testing
 
 model, history = buildModel.train(x_train, x_test, y_train, y_test)  # Train model on the split data
-model.save(f"{ARTIFACTS_DIR}/{ModelName}", save_format="tf")         # Save model artifacts
+model.save(f"{ARTIFACTS_DIR}/{MODEL_NAME}", save_format="tf")         # Save model artifacts
 plot.history(history)                                                # Plot model
 
 loss, accuracy, auc = model.evaluate(x_test, y_test)    # Evaluate model based on test data

@@ -27,7 +27,7 @@ def splitData(features, labels):
     x = scaler.fit_transform(features)  # NxM array where N is amount of data points per indicator and M is the number of indicators
     y = labels.values                   # Store of binary classifier -> Model prediction
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, shuffle=False) # Splits data, no shuffling and consistant in time Train on: 80% of the data and test on the other 20%
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, shuffle=False) # Splits data, no shuffling and consistant in time Train on: 80% of the data and test on the other 20%
 
     return x_train, x_test, y_train, y_test
 
