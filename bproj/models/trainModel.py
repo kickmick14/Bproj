@@ -26,7 +26,7 @@ df_options = {                         # df options for retrieving klines
     "client": main_client,             # Client to use
     "pair": "ETHUSDT",                 # Pair to trade
     "kline_period": "2h",              # Period of klines
-    "timeframe": "30 days ago UTC",   # Timeframe of kline data
+    "timeframe": "180 days ago UTC",   # Timeframe of kline data
     "future_window": 5,                # How far into future to consider for pct change
 }
 
@@ -42,12 +42,12 @@ labels   = df["label"]                                              # Binary cla
 x_train, x_test, y_train, y_test = buildModel.splitData(features, labels)   # Split data for training and testing
 
 # Set timesteps
-timesteps = 12
+timesteps = 24
 # Reshape for LSTM
 x_train, y_train = shaper.reshape_for_lstm(x_train, y_train, timesteps)
 x_test, y_test   = shaper.reshape_for_lstm(x_test, y_test, timesteps)
 
-validation_split = 0.25
+validation_split = 0.2
 epochs = 50
 batch_size = 32
 model, history = buildModel.LSTM(x_train, x_test, y_train, y_test, timesteps, validation_split, epochs, batch_size)   # Train model on the split data

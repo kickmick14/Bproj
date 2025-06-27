@@ -89,12 +89,11 @@ def basic(x_train, x_test, y_train, y_test, ARTIFACTS_DIR=None, MODEL_NAME=None)
 def LSTM(x_train, x_test, y_train, y_test, timesteps, validation_split, epochs, batch_size, ARTIFACTS_DIR=None, MODEL_NAME=None):
 
     model = tf.keras.Sequential([
-        tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(x_train.shape)),
+        tf.keras.layers.LSTM(64, return_sequences=True, input_shape=(timesteps, x_train.shape[2])),
         tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.LSTM(64),
+        tf.keras.layers.LSTM(32),
         tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.LSTM(16),
-        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dense(16, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
 

@@ -1,5 +1,5 @@
 # model artifacts
-artifacts/models/
+artifacts/
 
 # settings
 config/settings.json
