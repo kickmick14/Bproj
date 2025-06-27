@@ -20,22 +20,22 @@ test_account = test_client.get_account()                # Get test account infor
 df_options = {                         # df options for retrieving klines
     "client": main_client,             # Client to use
     "pair": "ETHUSDT",                 # Pair to trade
-    "kline_period": "1h",             # Period of klines
-    "timeframe": "90 days ago UTC",  # Timeframe of kline data
-    "future_window": 1,                # How far into future to consider for pct change
-    "threshold": 0.01                  # 1% change for trigger
+    "kline_period": "2h",             # Period of klines
+    "timeframe": "180 days ago UTC",  # Timeframe of kline data
+    "future_window": 3,                # How far into future to consider for pct change
 }
 
-klines_df = interact.retrieve_market_data(**df_options)             # Use the defined options to retrieve dataframe of binance data
-df = interact.add_indicators(klines_df, **df_options)               # Add the indicators and labels to the dataframe
-features = df[["return_1h", "rolling_mean_6h", "rolling_std_6h"]]   # "Training data"
-labels = df["label"]                                                # Binary classifier
+klines_df = interact.retrieve_market_data(**df_options)                             # Use the defined options to retrieve dataframe of binance data
+
+df       = interact.indicators(klines_df, threshold=0.005)          # Add the indicators and labels to the dataframe
+features = df[["return_1h", "rolling_mean_6h", "rolling_std_6h", "macd_signal", "bb_mid", "bb_lower", "bb_upper", "rsi", "atr", "obv"]]   # "Training data"
+labels   = df["label"]                                              # Binary classifier
 
 x_train, x_test, y_train, y_test = buildModel.splitData(features, labels)   # Split data for training and testing
 
-model, history = buildModel.train(x_train, x_test, y_train, y_test)  # Train model on the split data
+model, history = buildModel.train(x_train, x_test, y_train, y_test)   # Train model on the split data
 model.save(f"{ARTIFACTS_DIR}/{MODEL_NAME}", save_format="tf")         # Save model artifacts
-plot.history(history)                                                # Plot model
+plot.history(history)                                                 # Plot model
 
 loss, accuracy, auc = model.evaluate(x_test, y_test)    # Evaluate model based on test data
 print(f"\nLoss: {loss}\nAccuracy: {accuracy}\nAUC: {auc}\n")

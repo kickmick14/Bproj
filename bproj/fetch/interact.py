@@ -13,7 +13,7 @@ def retrieve_market_data(
         pair,               # Trading pair
         kline_period,       # kline interval period, e.g. 30m, 1h
         timeframe,          # Period into past
-        future_window       # Klines into future
+        future_window,       # Klines into future
         )->pd.DataFrame:
 
     # Retrieve klines from binnace client
@@ -26,13 +26,16 @@ def retrieve_market_data(
         "taker_buy_base", "taker_buy_quote", "ignore"
         ])
     
+    for col in ["open", "high", "low", "close", "volume"]:
+        df[col] = df[col].astype(float)
+    
     df["close"] = df["close"].astype(float)                 # Ensures "close" label is float valued
     df["future_price"] = df["close"].shift(-future_window)  # New column for future price, looking "future_value" into the future
     
     return df
 
 
-def indicator_6hRolling(
+def indicators(
         df,             # Intake dataframe
         threshold       # Percentage threshold
         )->pd.DataFrame:
@@ -43,16 +46,7 @@ def indicator_6hRolling(
     df["return_1h"] = df["close"].pct_change()              # 1h percentage change
     df["rolling_mean_6h"] = df["close"].rolling(6).mean()   # Rolling mean
     df["rolling_std_6h"] = df["close"].rolling(6).std()     # Rolling std
-    df.dropna(inplace=True)                                 # Drops any na values
 
-    return df
-
-
-def indicator_Technical(
-        df,
-        )->pd.DataFrame:
-    
-    # New indicators:
     # 1) MACD - Moving Average Convergence Divergence
     ema12             = df["close"].ewm(span=12, adjust=False).mean()
     ema26             = df["close"].ewm(span=26, adjust=False).mean()
@@ -84,7 +78,6 @@ def indicator_Technical(
     # 5) OBV - Ob-Balance Volume
     df["obv"] = (np.sign(df["close"].diff()) * df["volume"]).fillna(0).cumsum()
 
-    # Drop any NaNs introduced by the rolling windows
-    df.dropna(inplace=True)
+    df.dropna(inplace=True)    # Drops any na values
 
     return df
