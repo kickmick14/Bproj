@@ -1,3 +1,8 @@
+#######################################
+# @author Michael Kane
+# @date 27/06/2025
+# Sets environmental variables
+#######################################
 import os, secrets
 from pathlib import Path
 

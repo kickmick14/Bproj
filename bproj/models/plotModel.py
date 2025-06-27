@@ -18,8 +18,24 @@ def history(history, DATA_DIR=None):
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.legend()
-    plt.title('Training vs Validation Accuracy')
-    plt.savefig(f"{DATA_DIR}/TrainingVsValidationAccuracy.png")
+    plt.title('Training and Validation Accuracy')
+    plt.savefig(f"{DATA_DIR}/TrainingAndValidationAccuracy.png")
+    plt.clf()
+
+
+def loss(history, DATA_DIR=None):
+
+    if DATA_DIR is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
+
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.title('Training and Validation Loss')
+    plt.savefig(f"{DATA_DIR}/TrainingAndValidationLoss.png")
+    plt.clf()
 
 
 # Plot scikit learn confusion matrix information
@@ -43,3 +59,4 @@ def confusion(cm, ClassNames=["0", "1"], DATA_DIR=None):
     ax.set_ylabel("Actual")
     ax.set_title("Confusion Matrix")
     fig.savefig(f"{DATA_DIR}/confusion_matrix.png", bbox_inches="tight")
+    plt.clf()

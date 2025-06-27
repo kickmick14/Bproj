@@ -32,29 +32,90 @@ def splitData(features, labels):
     return x_train, x_test, y_train, y_test
 
 
-def train(x_train, x_test, y_train, y_test):
-
-    gpus = gpuConfig()      # Configure gpus
-    print(f"gpus: {gpus}")
+def basic(x_train, x_test, y_train, y_test):
 
     model = tf.keras.Sequential([                                                           # Network architecture - feed forward, linear neural networks layer by layer
-        tf.keras.layers.Dense(64, activation='relu', input_shape=(x_train.shape[1],)),   # Dense (fully-connected) with 64 units, ReLU activation, x.shape[1] defines the expected input shape 
-        tf.keras.layers.Dropout(0.3),                                                       # 30% of neurons randomly dropped each batch to help prevent overfitting
-        tf.keras.layers.Dense(32, activation='relu'),                                       # Dense (fully-connected) with 32 units, ReLU activation
-        tf.keras.layers.Dense(1, activation='sigmoid')                                      # Dense with 1 unit and sigmoid activation, producing a probability for the “up” class
+        tf.keras.layers.Dense(128, activation='relu', input_shape=(x_train.shape[1],)),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dense(64, activation='relu'),
+        #tf.keras.layers.LeakyReLU(alpha=0.1),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dense(32, activation='relu'),
+        tf.keras.layers.Dense(1, activation='sigmoid')
     ])
 
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+        initial_learning_rate=0.01,
+        decay_steps=10000,
+        decay_rate=0.9
+        )
+
+    optimiser = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+
     model.compile(                                     # Compile the model
-        optimizer='adam',                              # "adam" = adaptive learning rate
+        optimizer=optimiser,                           # "adam" = adaptive learning rate
         loss='binary_crossentropy',                    # Binary cross entropy is good loss function for binary classification
         metrics=['accuracy', tf.keras.metrics.AUC()]   # Tracks both classification accuracy and the AUC (area under the ROC curve) during training
         )
     
+    early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+    
     history = model.fit(                  # Train model
         x_train, y_train,                 # Set training data
-        epochs=20,                        # How many times the model will the training data - how many times data is used to refine model
+        epochs=50,                        # How many times the model will the training data - how many times data is used to refine model
         batch_size=32,                    # Splits sample size into chunks of 32, each batch produces one gradient descent update
+        validation_split=0.2,
+        callbacks=[early_stop],
         validation_data=(x_test, y_test)  # Set validation data
         )
 
     return model, history
+
+
+def LSTM(x_train, x_test, y_train, y_test, timesteps):
+
+    model = tf.keras.Sequential([
+        tf.keras.layers.LSTM(64, return_sequences=True, input_shape=(timesteps, x_train.shape[2])),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.LSTM(32),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dense(16, activation='relu'),
+        tf.keras.layers.Dense(1, activation='sigmoid')
+    ])
+
+    model.compile(
+        loss='binary_crossentropy',
+        optimizer='adam',
+        metrics=['accuracy', tf.keras.metrics.AUC()]
+    )
+
+    model.summary()
+
+    early_stop = tf.keras.callbacks.EarlyStopping(
+        monitor='val_loss', patience=5, restore_best_weights=True
+    )
+
+    history = model.fit(
+        x_train, y_train,
+        validation_split=0.2,
+        epochs=50,
+        batch_size=32,
+        callbacks=[early_stop],
+        validation_data=(x_test, y_test)
+    )
+
+    return model, history
+
+
+def CNN(x_train, x_test, y_train, y_test):
+
+    model = tf.keras.Sequential(
+        tf.keras.layers.Conv1D(64, kernel_size=3, activation='relu', input_shape=(timesteps, num_features)),
+        tf.keras.layers.MaxPooling1D(pool_size=2),
+        tf.keras.layers.Conv1D(32, kernel_size=3, activation='relu'),
+        tf.keras.layers.GlobalAveragePooling1D(),
+        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dense(1, activation='sigmoid')
+    )
