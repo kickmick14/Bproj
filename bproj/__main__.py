@@ -7,26 +7,35 @@
 #######################################
 import fetch.connect as connect
 import fetch.interact as interact
-import pandas as pd
+import functions.shapeData as shaper
+import models.buildModel as buildModel
+import models.plotModel as plot
+import models.analyseModel as analyse
+import os
+os.environ["MODEL_NAME"] = MODEL_NAME = "LSTM_mk1" # Model name to be saved
+from settings import ARTIFACTS_DIR, DATA_DIR, CREDENTIALS_PATH
 
-settingsPath = "config/settings.json"
+test_client = connect.client(CREDENTIALS_PATH, "test")  # Test account client
+main_client = connect.client(CREDENTIALS_PATH, "main")  # Main account client
+test_account = test_client.get_account()                # Get test account information
 
-test_client = connect.client(settingsPath, "test") # For interacting with test account
-main_client = connect.client(settingsPath, "main") # For collecting more kline data
-test_account = test_client.get_account()
-
-df_options = {
-    "client": main_client,
-    "pair": "ETHUSDT",
-    "kline_period": "1h", 
-    "timeframe": "90 days ago UTC",
-    "future_window": 3,
-    "threshold": 0.01
+df_options = {                         # df options for retrieving klines
+    "client": main_client,             # Client to use
+    "pair": "ETHUSDT",                 # Pair to trade
+    "kline_period": "2h",             # Period of klines
+    "timeframe": "30 days ago UTC",  # Timeframe of kline data
+    "future_window": 5,                # How far into future to consider for pct change
 }
 
-df = interact.retrieve_dataframe(**df_options)
+klines_df = interact.retrieve_market_data(**df_options)                             # Use the defined options to retrieve dataframe of binance data
 
-features = df[["return_1h", "rolling_mean_6h", "rolling_std_6h"]] # "Training data"
-labels = df["label"]                                              # Binary classifier
+df       = shaper.indicators(klines_df, threshold=0.01, RSI_window=14, ATR_window=14)          # Add the indicators and labels to the dataframe
+features = df[["macd_signal", "bb_mid", "bb_lower", "bb_upper", "rsi", "atr", "obv"]]   # "Training data"
+labels   = df["label"]                                              # Binary classifier
 
-print(features, "\n \n \n", labels)
+x_train, x_test, y_train, y_test = buildModel.splitData(features, labels)   # Split data for training and testing
+# Set timesteps (e.g., past 12 observations per prediction)
+
+print((labels==1).sum())
+print((labels==0).sum())
+print( ((labels==1).sum()) / ((labels==0).sum()) )

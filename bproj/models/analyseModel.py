@@ -7,6 +7,27 @@ from sklearn.metrics import classification_report, confusion_matrix
 import pandas as pd
 import models.plotModel as plot
 import json, os
+from sklearn.metrics import roc_curve, roc_auc_score
+
+
+def evaluation(model, x_test, y_test):
+
+    loss, accuracy, auc = model.evaluate(x_test, y_test)    # Evaluate model based on test data
+    print(f"\nLoss: {loss}\nAccuracy: {accuracy}\nAUC: {auc}\n")
+
+    return loss, accuracy, auc
+
+
+def AUCandROCcurve(y_test, y_pred, PRINT=False):
+
+    fpr, tpr, thresholds = roc_curve(y_test, y_pred)
+    auc = roc_auc_score(y_test, y_pred)
+
+    if PRINT == True:
+        print(f"\nfpr: {fpr}\ntpr: {tpr}\nThresholds: {thresholds}\nauc: {auc}")
+
+    return fpr, tpr, auc, thresholds
+
 
 
 # Create and plot the confusion matrix
@@ -29,6 +50,7 @@ def confusion(y_test, y_pred_labels, DATA_DIR=None):
     plot.confusion(cm)
 
 
+# Create classification report
 def classification(y_test, y_pred_labels, DATA_DIR=None):
 
     if DATA_DIR is None:

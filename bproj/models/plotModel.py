@@ -60,3 +60,21 @@ def confusion(cm, ClassNames=["0", "1"], DATA_DIR=None):
     ax.set_title("Confusion Matrix")
     fig.savefig(f"{DATA_DIR}/confusion_matrix.png", bbox_inches="tight")
     plt.clf()
+
+
+def ROC_curve(fpr, tpr, auc, DATA_DIR=None):
+
+    if DATA_DIR is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
+
+    plt.figure()
+    plt.plot(fpr, tpr, label=f'ROC curve (AUC = {auc:.4f})')
+    plt.plot([0, 1], [0, 1], 'k--', alpha=0.5)  # baseline diagonal
+    #plt.xlim([0.0, 1.0])
+    #plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc="lower right")
+    plt.savefig(f"{DATA_DIR}/ROC_curve.png")
+    plt.clf()

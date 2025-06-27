@@ -53,9 +53,16 @@ def indicators(
 
 
 def reshape_for_lstm(x, y, timesteps):
+
     x_lstm, y_lstm = [], []
     for i in range(len(x) - timesteps):
         x_lstm.append(x[i:(i + timesteps)])
         y_lstm.append(y[i + timesteps])
+
+    x_lstm = np.array(x_lstm)
+    y_lstm = np.array(y_lstm)
+
     # Verify shapes
-    return np.array(x_lstm), np.array(y_lstm)
+    print(f"Training data shape: {x_lstm.shape}, {y_lstm.shape}")
+
+    return x_lstm, y_lstm

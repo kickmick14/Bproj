@@ -10,6 +10,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import models.plotModel as plotModel
+import os
 
 
 def gpuConfig(intra=4, inter=2): # Don't change intra and inter unless you know what you're doing
@@ -19,6 +20,14 @@ def gpuConfig(intra=4, inter=2): # Don't change intra and inter unless you know 
     tf.config.threading.set_intra_op_parallelism_threads(4)
     tf.config.threading.set_inter_op_parallelism_threads(2)
     return gpus
+
+
+def model_predict(model, x_test):
+
+    y_pred = model.predict(x_test)                  # Feeds x_test into model to make binary predictions on it
+    y_pred_labels = (y_pred > 0.5).astype(int)      # Sigmoid output greater than 0.5 indicates it predicts an increase, save as binary 2
+
+    return y_pred, y_pred_labels
 
 
 def splitData(features, labels):
@@ -32,7 +41,7 @@ def splitData(features, labels):
     return x_train, x_test, y_train, y_test
 
 
-def basic(x_train, x_test, y_train, y_test):
+def basic(x_train, x_test, y_train, y_test, ARTIFACTS_DIR=None, MODEL_NAME=None):
 
     model = tf.keras.Sequential([                                                           # Network architecture - feed forward, linear neural networks layer by layer
         tf.keras.layers.Dense(128, activation='relu', input_shape=(x_train.shape[1],)),
@@ -70,11 +79,15 @@ def basic(x_train, x_test, y_train, y_test):
         callbacks=[early_stop],
         validation_data=(x_test, y_test)  # Set validation data
         )
+    
+    if ARTIFACTS_DIR and MODEL_NAME is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
+    model.save(f"{ARTIFACTS_DIR}/{MODEL_NAME}", save_format="tf")   # Save model artifacts
 
     return model, history
 
 
-def LSTM(x_train, x_test, y_train, y_test, timesteps):
+def LSTM(x_train, x_test, y_train, y_test, timesteps, ARTIFACTS_DIR=None, MODEL_NAME=None):
 
     model = tf.keras.Sequential([
         tf.keras.layers.LSTM(64, return_sequences=True, input_shape=(timesteps, x_train.shape[2])),
@@ -106,10 +119,14 @@ def LSTM(x_train, x_test, y_train, y_test, timesteps):
         validation_data=(x_test, y_test)
     )
 
+    if ARTIFACTS_DIR and MODEL_NAME is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
+    model.save(f"{ARTIFACTS_DIR}/{MODEL_NAME}", save_format="tf")   # Save model artifacts
+
     return model, history
 
 
-def CNN(x_train, x_test, y_train, y_test):
+def CNN(x_train, x_test, y_train, y_test, timesteps, num_features):
 
     model = tf.keras.Sequential(
         tf.keras.layers.Conv1D(64, kernel_size=3, activation='relu', input_shape=(timesteps, num_features)),
