@@ -48,7 +48,6 @@ def basic(x_train, x_test, y_train, y_test, ARTIFACTS_DIR=None, MODEL_NAME=None)
         tf.keras.layers.BatchNormalization(),
         tf.keras.layers.Dropout(0.3),
         tf.keras.layers.Dense(64, activation='relu'),
-        #tf.keras.layers.LeakyReLU(alpha=0.1),
         tf.keras.layers.BatchNormalization(),
         tf.keras.layers.Dropout(0.3),
         tf.keras.layers.Dense(32, activation='relu'),
@@ -87,14 +86,15 @@ def basic(x_train, x_test, y_train, y_test, ARTIFACTS_DIR=None, MODEL_NAME=None)
     return model, history
 
 
-def LSTM(x_train, x_test, y_train, y_test, timesteps, ARTIFACTS_DIR=None, MODEL_NAME=None):
+def LSTM(x_train, x_test, y_train, y_test, timesteps, validation_split, epochs, batch_size, ARTIFACTS_DIR=None, MODEL_NAME=None):
 
     model = tf.keras.Sequential([
-        tf.keras.layers.LSTM(64, return_sequences=True, input_shape=(timesteps, x_train.shape[2])),
+        tf.keras.layers.LSTM(128, return_sequences=True, input_shape=(x_train.shape)),
         tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.LSTM(32),
+        tf.keras.layers.LSTM(64),
         tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.Dense(16, activation='relu'),
+        tf.keras.layers.LSTM(16),
+        tf.keras.layers.Dropout(0.3),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
 
@@ -112,9 +112,9 @@ def LSTM(x_train, x_test, y_train, y_test, timesteps, ARTIFACTS_DIR=None, MODEL_
 
     history = model.fit(
         x_train, y_train,
-        validation_split=0.2,
-        epochs=50,
-        batch_size=32,
+        validation_split=validation_split,
+        epochs=epochs,
+        batch_size=batch_size,
         callbacks=[early_stop],
         validation_data=(x_test, y_test)
     )

@@ -12,6 +12,7 @@ import models.buildModel as buildModel
 import models.plotModel as plot
 import models.analyseModel as analyse
 import os
+import functions.shapeData as shaper
 os.environ["MODEL_NAME"] = MODEL_NAME = "LSTM_mk1" # Model name to be saved
 from settings import ARTIFACTS_DIR, DATA_DIR, CREDENTIALS_PATH
 
@@ -39,3 +40,8 @@ x_train, x_test, y_train, y_test = buildModel.splitData(features, labels)   # Sp
 print((labels==1).sum())
 print((labels==0).sum())
 print( ((labels==1).sum()) / ((labels==0).sum()) )
+
+x_train, y_train = shaper.reshape_for_lstm(x_train, y_train, 12)
+x_test, y_test   = shaper.reshape_for_lstm(x_test, y_test, 12)
+
+print(x_test.shape)

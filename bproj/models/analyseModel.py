@@ -29,7 +29,6 @@ def AUCandROCcurve(y_test, y_pred, PRINT=False):
     return fpr, tpr, auc, thresholds
 
 
-
 # Create and plot the confusion matrix
 def confusion(y_test, y_pred_labels, DATA_DIR=None):
 

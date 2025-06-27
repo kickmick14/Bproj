@@ -63,6 +63,6 @@ def reshape_for_lstm(x, y, timesteps):
     y_lstm = np.array(y_lstm)
 
     # Verify shapes
-    print(f"Training data shape: {x_lstm.shape}, {y_lstm.shape}")
+    print(f"Data shape: {x_lstm.shape}, {y_lstm.shape}")
 
     return x_lstm, y_lstm
