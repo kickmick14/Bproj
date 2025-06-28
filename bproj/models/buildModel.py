@@ -6,6 +6,7 @@
 #######################################
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.utils.class_weight import compute_class_weight
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -89,11 +90,8 @@ def basic(x_train, x_test, y_train, y_test, ARTIFACTS_DIR=None, MODEL_NAME=None)
 def LSTM(x_train, x_test, y_train, y_test, timesteps, validation_split, epochs, batch_size, ARTIFACTS_DIR=None, MODEL_NAME=None):
 
     model = tf.keras.Sequential([
-        tf.keras.layers.LSTM(64, return_sequences=True, input_shape=(timesteps, x_train.shape[2])),
-        tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.LSTM(32),
-        tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.Dense(16, activation='relu'),
+        tf.keras.layers.LSTM(64, input_shape=(timesteps, x_train.shape[2]), recurrent_dropout=0.2),
+        tf.keras.layers.Dropout(0.15),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
 
@@ -109,13 +107,17 @@ def LSTM(x_train, x_test, y_train, y_test, timesteps, validation_split, epochs, 
         monitor='val_loss', patience=5, restore_best_weights=True
     )
 
+    weights = compute_class_weight('balanced', classes=np.unique(y_train), y=y_train)
+    class_weight = dict(enumerate(weights))
+
     history = model.fit(
         x_train, y_train,
         validation_split=validation_split,
         epochs=epochs,
         batch_size=batch_size,
         callbacks=[early_stop],
-        validation_data=(x_test, y_test)
+        validation_data=(x_test, y_test),
+        class_weight=class_weight
     )
 
     if ARTIFACTS_DIR and MODEL_NAME is None:
