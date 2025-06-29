@@ -7,34 +7,34 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# Plot model.train output
-def history(history, DATA_DIR=None):
+
+def plotter(y1, name1, y2, name2, x_axis, y_axis, title, savename, DATA_DIR=None):
 
     if DATA_DIR is None:
         DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
 
-    plt.plot(history.history['accuracy'], label='Train Acc')
-    plt.plot(history.history['val_accuracy'], label='Val Acc')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
+    plt.plot(y1, label=name1)
+    plt.plot(y2, label=name2)
+    plt.xlabel(x_axis)
+    plt.ylabel(y_axis)
     plt.legend()
-    plt.title('Training and Validation Accuracy')
-    plt.savefig(f"{DATA_DIR}/TrainingAndValidationAccuracy.png")
+    plt.title(title)
+    plt.savefig(f"{DATA_DIR}/plots/{savename}.png")
     plt.clf()
 
 
-def loss(history, DATA_DIR=None):
+def validation_combined(history, DATA_DIR=None):
 
     if DATA_DIR is None:
         DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
 
-    plt.plot(history.history['loss'], label='Training Loss')
-    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.plot(history.history['val_precision'], label='Val Precision')
+    plt.plot(history.history['val_recall'], label='Val Recall')
+    plt.plot(history.history['val_auc'], label='Val AUC')
     plt.xlabel('Epoch')
-    plt.ylabel('Loss')
+    plt.title('Validation Precision, Recall, and AUC')
     plt.legend()
-    plt.title('Training and Validation Loss')
-    plt.savefig(f"{DATA_DIR}/TrainingAndValidationLoss.png")
+    plt.savefig(f"{DATA_DIR}/plots/validation_combined.png")
     plt.clf()
 
 
@@ -58,7 +58,7 @@ def confusion(cm, ClassNames=["0", "1"], DATA_DIR=None):
     ax.set_xlabel("Predicted")
     ax.set_ylabel("Actual")
     ax.set_title("Confusion Matrix")
-    fig.savefig(f"{DATA_DIR}/confusion_matrix.png", bbox_inches="tight")
+    fig.savefig(f"{DATA_DIR}/plots/confusion_matrix.png", bbox_inches="tight")
     plt.clf()
 
 
@@ -70,17 +70,17 @@ def ROC_curve(fpr, tpr, auc, DATA_DIR=None):
     plt.figure()
     plt.plot(fpr, tpr, label=f'ROC curve (AUC = {auc:.4f})')
     plt.plot([0, 1], [0, 1], 'k--', alpha=0.5)  # baseline diagonal
-    #plt.xlim([0.0, 1.0])
-    #plt.ylim([0.0, 1.05])
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc="lower right")
-    plt.savefig(f"{DATA_DIR}/ROC_curve.png")
+    plt.savefig(f"{DATA_DIR}/plots/ROC_curve.png")
     plt.clf()
 
 
-def prod_histo(y_pred, DATA_DIR=None):
+def prediction_histo(y_pred, DATA_DIR=None):
 
     if DATA_DIR is None:
         DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
@@ -89,6 +89,5 @@ def prod_histo(y_pred, DATA_DIR=None):
     plt.xlabel('Prediction')
     plt.ylabel('Entries')
     plt.title('Receiver Operating Characteristic')
-    plt.legend(loc="lower right")
-    plt.savefig(f"{DATA_DIR}/ROC_curve.png")
+    plt.savefig(f"{DATA_DIR}/plots/prediction_histo.png")
     plt.clf()

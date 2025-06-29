@@ -5,19 +5,22 @@
 #######################################
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.metrics import roc_curve, roc_auc_score
+import tensorflow as tf
 import pandas as pd
 import framework.functions.plotModel as plot
 import json, os
 
 
+# Evaluate model based on test data
 def evaluation(model, x_test, y_test):
 
-    loss, accuracy, auc = model.evaluate(x_test, y_test)    # Evaluate model based on test data
+    loss, accuracy, auc, precision, recall = model.evaluate(x_test, y_test)
     print(f"\nLoss: {loss}\nAccuracy: {accuracy}\nAUC: {auc}\n")
 
-    return loss, accuracy, auc
+    return loss, accuracy, auc, precision, recall
 
 
+# Create ROC and retrieve AUC 
 def AUCandROCcurve(y_test, y_pred, PRINT=False):
 
     fpr, tpr, thresholds = roc_curve(y_test, y_pred)

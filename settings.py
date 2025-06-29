@@ -35,4 +35,6 @@ os.environ.setdefault("CREDENTIALS_PATH", str(CREDENTIALS_PATH))
 
 # 6) Ensure directories exist
 for d in (ARTIFACTS_DIR, DATA_DIR):
-    d.mkdir(parents=True, exist_ok=True)
+    d.mkdir(parents=True, exist_ok=True)   
+    if d == DATA_DIR:
+        os.makedirs(DATA_DIR / "plots", exist_ok=True)
