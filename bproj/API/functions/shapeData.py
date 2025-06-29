@@ -52,7 +52,11 @@ def indicators(
     return df
 
 
-def reshape_for_lstm(x, y, timesteps):
+def reshape_for_lstm(
+        x,
+        y,
+        timesteps
+        )->np.array:
 
     x_lstm, y_lstm = [], []
     for i in range(len(x) - timesteps):

@@ -78,3 +78,17 @@ def ROC_curve(fpr, tpr, auc, DATA_DIR=None):
     plt.legend(loc="lower right")
     plt.savefig(f"{DATA_DIR}/ROC_curve.png")
     plt.clf()
+
+
+def prod_histo(y_pred, DATA_DIR=None):
+
+    if DATA_DIR is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
+
+    plt.hist(y_pred, bins=50)
+    plt.xlabel('Prediction')
+    plt.ylabel('Entries')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc="lower right")
+    plt.savefig(f"{DATA_DIR}/ROC_curve.png")
+    plt.clf()

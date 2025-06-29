@@ -6,7 +6,7 @@
 #######################################
 import pandas as pd
 import numpy as np
-import fetch.connect as connect
+import API.fetch.connect as connect
 
 def retrieve_market_data(
         client,             # Binance client

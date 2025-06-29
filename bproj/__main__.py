@@ -8,9 +8,9 @@
 import fetch.connect as connect
 import fetch.interact as interact
 import functions.shapeData as shaper
-import models.buildModel as buildModel
-import models.plotModel as plot
-import models.analyseModel as analyse
+import framework.functions as functions
+import framework.plotModel as plot
+import framework.analyseModel as analyse
 import os
 import functions.shapeData as shaper
 os.environ["MODEL_NAME"] = MODEL_NAME = "LSTM_mk1" # Model name to be saved
@@ -34,7 +34,7 @@ df       = shaper.indicators(klines_df, threshold=0.01, RSI_window=14, ATR_windo
 features = df[["macd_signal", "bb_mid", "bb_lower", "bb_upper", "rsi", "atr", "obv"]]   # "Training data"
 labels   = df["label"]                                              # Binary classifier
 
-x_train, x_test, y_train, y_test = buildModel.splitData(features, labels)   # Split data for training and testing
+x_train, x_test, y_train, y_test = functions.splitData(features, labels)   # Split data for training and testing
 # Set timesteps (e.g., past 12 observations per prediction)
 
 print((labels==1).sum())

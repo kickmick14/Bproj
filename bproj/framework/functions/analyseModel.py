@@ -4,10 +4,10 @@
 # Functions to analyse models output
 #######################################
 from sklearn.metrics import classification_report, confusion_matrix
-import pandas as pd
-import models.plotModel as plot
-import json, os
 from sklearn.metrics import roc_curve, roc_auc_score
+import pandas as pd
+import framework.functions.plotModel as plot
+import json, os
 
 
 def evaluation(model, x_test, y_test):
@@ -37,14 +37,6 @@ def confusion(y_test, y_pred_labels, DATA_DIR=None):
 
     # Compute confusion matrix
     cm = confusion_matrix(y_test, y_pred_labels)
-    # Convert it into dataframe
-    df_cm = pd.DataFrame(
-        cm,
-        index=["actual_0", "actual_1"], # rows: actual class 0 then 1
-        columns=["pred_0",   "pred_1"]  # cols: predicted class 0 then 1
-    )
-    # Write it out as CSV
-    df_cm.to_csv(f"{DATA_DIR}/confusion_matrix.csv")
     # Plot the results
     plot.confusion(cm)
 
