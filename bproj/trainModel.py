@@ -10,21 +10,25 @@ import framework.functions.configureTraining as configure
 import framework.functions.plotModel as plot
 import framework.functions.analyseModel as analyse
 import framework.models.LSTM as framework
-import os
+import os, uuid
 from datetime import datetime
 import tensorflow as tf
-os.environ["MODEL_NAME"] = MODEL_NAME = "LSTM_mk1" # Model name to be saved
-from settings import RUN_ID, DATA_DIR, CREDENTIALS_PATH
 
 # Configure gpus
 gpus = configure.gpuConfig()
 print(f"gpus: {gpus}")
 
 #16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178
-for units in [4]:
+for units in [16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178]:
+
+    # Generate unique run hash
+    RUN_ID = uuid.uuid4().hex[:8]
+    os.environ.setdefault("RUN_ID", str(RUN_ID))
+    # Set model name
+    os.environ["MODEL_NAME"] = MODEL_NAME = "LSTM_mk1" # Model name to be saved
+    from settings import DATA_DIR, CREDENTIALS_PATH
     # Get starting time
     now = datetime.now().strftime('%H:%M:%S')
-    run_id = RUN_ID
 
     # Connect to Binance
     test_client = connect.client(CREDENTIALS_PATH, "test")
@@ -35,7 +39,7 @@ for units in [4]:
         "pair": "ETHUSDT",                 # Pair to trade
         "kline_period": "2h",              # Period of klines
         "timeframe": "720 days ago UTC",   # Timeframe of kline data
-        "future_window": 10,               # How far into future to consider for pct change
+        "future_window": 5,                # How far into future to consider for pct change
     }
 
     # Use the defined options to retrieve dataframe of binance data
@@ -102,6 +106,8 @@ for units in [4]:
     # Retrieve metrics using sklearn
     fpr, tpr, sklearn_auc, thresholds = analyse.AUCandROCcurve(y_test, y_pred)
 
+    print(f"\t   RUN HASH\n->->->->-> {RUN_ID} <-<-<-<-<-")
+
     # Plotting output
     plot.plotter(history.history["accuracy"], "Train Acc", history.history["val_accuracy"], "Val Acc", "Epoch", "Accuracy", "Traing vs Validation Accuracy", "accuracy")
     plot.plotter(history.history["loss"], "Train Loss", history.history["val_loss"], "Val Loss", "Epoch", "Loss", "Traing vs Validation Loss", "loss")
@@ -120,7 +126,7 @@ for units in [4]:
     # Logging 
     end = datetime.now().strftime('%H:%M:%S')
     log_dict = {
-        "run_id":                  run_id,
+        "run_id":                  RUN_ID,
         "history_train_loss":      round(history.history['loss'][-1], 4),
         "history_val_loss":        round(history.history['val_loss'][-1], 4),
         "eval_test_loss":          round(eval_loss, 4),
@@ -140,5 +146,3 @@ for units in [4]:
     configure.log_to_json(f"{DATA_DIR}/model_logs.jsonl", log_dict)
     with open(f"{DATA_DIR}/model_logs.jsonl", 'a') as f:
             f.write("\n")
-
-    print(f"Current run hash ----- {run_id}")

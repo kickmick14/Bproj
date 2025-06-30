@@ -23,7 +23,6 @@ def LSTM(
         RUN_ID=None
         ):
     
-
     if ARTIFACTS_DIR is None:
         ARTIFACTS_DIR = os.environ.get("ARTIFACTS_DIR")
     if MODEL_NAME is None:
@@ -57,7 +56,7 @@ def LSTM(
 
     # Prints a summary of the model
     model.summary()
-
+    
     early_stop = tf.keras.callbacks.EarlyStopping(
         monitor='val_loss',              # Creates callback for validation loss after each loop
         patience=options["patience"],    # If the validation loss does not improve for x consecutive epochs (patience=x), it will stop the training early.
@@ -73,9 +72,8 @@ def LSTM(
     
     # Converts the array of weights into a dictionary mapping class index to weight.
     class_weight = dict(enumerate(weights))
-    run_id = os.environ.get('RUN_ID', -1)
     epoch_dict = {
-        "run_id": run_id
+        "run_id": RUN_ID
     }
     csv_logger = configure.CSVLogger(f"{DATA_DIR}/{RUN_ID}/epoch_logs.jsonl", epoch_dict)
 

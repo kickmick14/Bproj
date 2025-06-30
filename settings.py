@@ -3,11 +3,8 @@
 # @date 27/06/2025
 # Sets environmental variables
 #######################################
-import os, secrets, uuid
+import os
 from pathlib import Path
-
-RUN_ID = uuid.uuid4().hex[:8]
-os.environ.setdefault("RUN_ID", str(RUN_ID))
 
 # 1) Base directory (this file’s parent directory)
 BASE_DIR = Path(__file__).parent.resolve()
@@ -34,6 +31,9 @@ CREDENTIALS_PATH = Path(
     os.environ.get("CREDENTIALS_PATH", BASE_DIR / "config" / "settings.json")
 ).resolve()
 os.environ.setdefault("CREDENTIALS_PATH", str(CREDENTIALS_PATH))
+
+# 6) Get unique run hasg
+RUN_ID = os.environ.get("RUN_ID", "FAILSAFE_RUN_ID")
 
 # 7) Ensure directories exist
 for d in (ARTIFACTS_DIR, DATA_DIR):
