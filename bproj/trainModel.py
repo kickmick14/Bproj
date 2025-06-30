@@ -10,23 +10,24 @@ import framework.functions.configureTraining as configure
 import framework.functions.plotModel as plot
 import framework.functions.analyseModel as analyse
 import framework.models.LSTM as framework
-import os, uuid
-from datetime import datetime
+import os, uuid, gc
 import tensorflow as tf
+from datetime import datetime
+from keras import backend
+os.environ["MODEL_NAME"] = MODEL_NAME = "LSTM_mk1" # Model name to be saved
+from settings import DATA_DIR, CREDENTIALS_PATH
 
 # Configure gpus
 gpus = configure.gpuConfig()
 print(f"gpus: {gpus}")
 
-#16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178
-for units in [16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178]:
+for index, units in enumerate([16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178]):
 
-    # Generate unique run hash
+    # Set up unique hash for loop
     RUN_ID = uuid.uuid4().hex[:8]
     os.environ.setdefault("RUN_ID", str(RUN_ID))
-    # Set model name
-    os.environ["MODEL_NAME"] = MODEL_NAME = "LSTM_mk1" # Model name to be saved
-    from settings import DATA_DIR, CREDENTIALS_PATH
+    os.makedirs(f"{DATA_DIR}/{RUN_ID}/plots", exist_ok=True)
+    
     # Get starting time
     now = datetime.now().strftime('%H:%M:%S')
 
@@ -69,6 +70,7 @@ for units in [16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178]:
           "zscore_20",
           *[ f"return_{lag}" for lag in indicators_dict["lag_list"] ]
           ] ]
+    
     labels = df["label"]   # Binary classifier
 
     # Fraction of data taken for training
@@ -88,7 +90,8 @@ for units in [16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178]:
         "optimiser": "adam",
         "learning_rate": 0.0005,
         "loss": "binary_crossentropy",
-        "patience": 5
+        "patience": 5,
+        "probability_id": 0.5,
         }
 
     optimiser = tf.keras.optimizers.Adam(learning_rate=hyperparameters["learning_rate"])
@@ -102,26 +105,26 @@ for units in [16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178]:
     # Evaluate the model using test data
     eval_loss, eval_accuracy, eval_auc, eval_precision, eval_recall = analyse.evaluation(model, x_test, y_test)
     # Make predictions using test data
-    y_pred, y_pred_labels = configure.model_predict(model, x_test)
+    y_pred, y_pred_labels = configure.model_predict(model, x_test, hyperparameters["probability_id"])
     # Retrieve metrics using sklearn
     fpr, tpr, sklearn_auc, thresholds = analyse.AUCandROCcurve(y_test, y_pred)
 
-    print(f"\t   RUN HASH\n->->->->-> {RUN_ID} <-<-<-<-<-")
+    print(f"\t  RUN {index+1} HASH\n->->->->-> {RUN_ID} <-<-<-<-<-")
 
     # Plotting output
-    plot.plotter(history.history["accuracy"], "Train Acc", history.history["val_accuracy"], "Val Acc", "Epoch", "Accuracy", "Traing vs Validation Accuracy", "accuracy")
-    plot.plotter(history.history["loss"], "Train Loss", history.history["val_loss"], "Val Loss", "Epoch", "Loss", "Traing vs Validation Loss", "loss")
-    plot.plotter(history.history["auc"], "Train AUC", history.history["val_auc"], "Val AUC", "Epoch", "AUC", "Traing vs Validation AUC", "AUC")
-    plot.plotter(history.history["precision"], "Train Precision", history.history["val_precision"], "Val Precision", "Epoch", "Precision", "Traing vs Validation Precision", "precision")
-    plot.plotter(history.history["recall"], "Train Recall", history.history["val_recall"], "Val Recall", "Epoch", "Recall", "Traing vs Validation Recall", "recall")
-    plot.validation_combined(history)
-    plot.ROC_curve(fpr, tpr, sklearn_auc)
-    plot.prediction_histo(y_pred)
+    plot.plotter(history.history["accuracy"], "Train Acc", history.history["val_accuracy"], "Val Acc", "Epoch", "Accuracy", "Traing vs Validation Accuracy", "accuracy", RUN_ID=RUN_ID)
+    plot.plotter(history.history["loss"], "Train Loss", history.history["val_loss"], "Val Loss", "Epoch", "Loss", "Traing vs Validation Loss", "loss", RUN_ID=RUN_ID)
+    plot.plotter(history.history["auc"], "Train AUC", history.history["val_auc"], "Val AUC", "Epoch", "AUC", "Traing vs Validation AUC", "AUC", RUN_ID=RUN_ID)
+    plot.plotter(history.history["precision"], "Train Precision", history.history["val_precision"], "Val Precision", "Epoch", "Precision", "Traing vs Validation Precision", "precision", RUN_ID=RUN_ID)
+    plot.plotter(history.history["recall"], "Train Recall", history.history["val_recall"], "Val Recall", "Epoch", "Recall", "Traing vs Validation Recall", "recall", RUN_ID=RUN_ID)
+    plot.validation_combined(history, RUN_ID=RUN_ID)
+    plot.ROC_curve(fpr, tpr, sklearn_auc, RUN_ID=RUN_ID)
+    plot.prediction_histo(y_pred, RUN_ID=RUN_ID)
 
     # Create classification report
-    analyse.classification(y_test, y_pred_labels)
+    analyse.classification(y_test, y_pred_labels, RUN_ID=RUN_ID)
     # Create confusion matrix
-    analyse.confusion(y_test, y_pred_labels)
+    analyse.confusion(y_test, y_pred_labels, RUN_ID=RUN_ID)
 
     # Logging 
     end = datetime.now().strftime('%H:%M:%S')
@@ -146,3 +149,6 @@ for units in [16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 178]:
     configure.log_to_json(f"{DATA_DIR}/model_logs.jsonl", log_dict)
     with open(f"{DATA_DIR}/model_logs.jsonl", 'a') as f:
             f.write("\n")
+    
+    backend.clear_session()
+    gc.collect()

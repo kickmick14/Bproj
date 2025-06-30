@@ -33,23 +33,26 @@ def AUCandROCcurve(y_test, y_pred, PRINT=False):
 
 
 # Create and plot the confusion matrix
-def confusion(y_test, y_pred_labels, DATA_DIR=None):
+def confusion(y_test, y_pred_labels, DATA_DIR=None, RUN_ID=None):
 
     if DATA_DIR is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
+        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
+    if RUN_ID is None:
+        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
 
     # Compute confusion matrix
     cm = confusion_matrix(y_test, y_pred_labels)
     # Plot the results
-    plot.confusion(cm)
+    plot.confusion(cm, RUN_ID=RUN_ID)
 
 
 # Create classification report
 def classification(y_test, y_pred_labels, DATA_DIR=None, RUN_ID=None):
 
-    if DATA_DIR or RUN_ID is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)
-        RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
+    if DATA_DIR is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
+    if RUN_ID is None:
+        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
 
     # Compute classification report
     cr = classification_report(

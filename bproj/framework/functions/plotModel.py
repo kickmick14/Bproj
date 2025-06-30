@@ -9,11 +9,17 @@ import numpy as np
 import os
 
 
-def plotter(y1, name1, y2, name2, x_axis, y_axis, title, savename, DATA_DIR=None, RUN_ID=None):
+def plotter(
+        y1, name1, 
+        y2, name2, 
+        x_axis, y_axis, 
+        title, savename, DATA_DIR=None, RUN_ID=None
+        ):
 
-    if DATA_DIR or RUN_ID is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)
-        RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
+    if DATA_DIR is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
+    if RUN_ID is None:
+        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
 
     plt.plot(y1, label=name1)
     plt.plot(y2, label=name2)
@@ -27,9 +33,10 @@ def plotter(y1, name1, y2, name2, x_axis, y_axis, title, savename, DATA_DIR=None
 
 def validation_combined(history, DATA_DIR=None, RUN_ID=None):
 
-    if DATA_DIR or RUN_ID is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)
-        RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
+    if DATA_DIR is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
+    if RUN_ID is None:
+        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
 
     plt.plot(history.history['val_precision'], label='Val Precision')
     plt.plot(history.history['val_recall'], label='Val Recall')
@@ -44,9 +51,10 @@ def validation_combined(history, DATA_DIR=None, RUN_ID=None):
 # Plot scikit learn confusion matrix information
 def confusion(cm, ClassNames=["0", "1"], DATA_DIR=None, RUN_ID=None):
 
-    if DATA_DIR or RUN_ID is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)
-        RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
+    if DATA_DIR is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
+    if RUN_ID is None:
+        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
 
     fig, ax = plt.subplots(figsize=(6,5))
     sns.heatmap(
@@ -68,9 +76,10 @@ def confusion(cm, ClassNames=["0", "1"], DATA_DIR=None, RUN_ID=None):
 
 def ROC_curve(fpr, tpr, auc, DATA_DIR=None, RUN_ID=None):
 
-    if DATA_DIR or RUN_ID is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)
-        RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
+    if DATA_DIR is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
+    if RUN_ID is None:
+        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
 
     plt.figure()
     plt.plot(fpr, tpr, label=f'ROC curve (AUC = {auc:.4f})')
@@ -86,10 +95,6 @@ def ROC_curve(fpr, tpr, auc, DATA_DIR=None, RUN_ID=None):
 
 
 def prediction_histo(y_pred, DATA_DIR=None, RUN_ID=None):
-
-    if DATA_DIR is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)
-        RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
 
     if DATA_DIR is None:
         DATA_DIR = os.environ.get("DATA_DIR", -1)

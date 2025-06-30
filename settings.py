@@ -3,7 +3,7 @@
 # @date 27/06/2025
 # Sets environmental variables
 #######################################
-import os
+import os, uuid
 from pathlib import Path
 
 # 1) Base directory (this file’s parent directory)
@@ -19,6 +19,7 @@ ARTIFACTS_DIR = Path(
     os.environ.get("ARTIFACTS_DIR", BASE_DIR / "artifacts" / "models")
 ).resolve()
 os.environ.setdefault("ARTIFACTS_DIR", str(ARTIFACTS_DIR))
+os.makedirs(ARTIFACTS_DIR, exist_ok=True)   
 
 # 4) Data directory (per-model)
 DATA_DIR = Path(
@@ -31,12 +32,3 @@ CREDENTIALS_PATH = Path(
     os.environ.get("CREDENTIALS_PATH", BASE_DIR / "config" / "settings.json")
 ).resolve()
 os.environ.setdefault("CREDENTIALS_PATH", str(CREDENTIALS_PATH))
-
-# 6) Get unique run hasg
-RUN_ID = os.environ.get("RUN_ID", "FAILSAFE_RUN_ID")
-
-# 7) Ensure directories exist
-for d in (ARTIFACTS_DIR, DATA_DIR):
-    d.mkdir(parents=True, exist_ok=True)   
-    if d == DATA_DIR:
-        os.makedirs(DATA_DIR / f"{RUN_ID}/plots", exist_ok=True)
