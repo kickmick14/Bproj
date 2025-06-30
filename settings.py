@@ -3,16 +3,18 @@
 # @date 27/06/2025
 # Sets environmental variables
 #######################################
-import os, secrets
+import os, secrets, uuid
 from pathlib import Path
+
+RUN_ID = uuid.uuid4().hex[:8]
+os.environ.setdefault("RUN_ID", str(RUN_ID))
 
 # 1) Base directory (this file’s parent directory)
 BASE_DIR = Path(__file__).parent.resolve()
-# Expose as env var
 os.environ.setdefault("BASE_DIR", str(BASE_DIR))
 
 # 2) Model name: can override via environment
-MODEL_NAME = os.environ.get("MODEL_NAME", secrets.token_hex(nbytes=8))
+MODEL_NAME = os.environ.get("MODEL_NAME", "FAILSAFE_MODEL_NAME")
 os.environ.setdefault("MODEL_NAME", MODEL_NAME)
 
 # 3) Artifacts directory (models)
@@ -33,8 +35,8 @@ CREDENTIALS_PATH = Path(
 ).resolve()
 os.environ.setdefault("CREDENTIALS_PATH", str(CREDENTIALS_PATH))
 
-# 6) Ensure directories exist
+# 7) Ensure directories exist
 for d in (ARTIFACTS_DIR, DATA_DIR):
     d.mkdir(parents=True, exist_ok=True)   
     if d == DATA_DIR:
-        os.makedirs(DATA_DIR / "plots", exist_ok=True)
+        os.makedirs(DATA_DIR / f"{RUN_ID}/plots", exist_ok=True)

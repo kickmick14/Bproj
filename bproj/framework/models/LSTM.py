@@ -12,36 +12,35 @@ import os
 
 
 # Model function to be called elsewhere
-def LSTM(x_train, x_test, y_train, y_test,
-         optimiser,
-         options,
-         ARTIFACTS_DIR=None,
-         MODEL_NAME=None,
-         DATA_DIR=None
-         ):
+def LSTM(
+        x_train, x_test, y_train, y_test,
+        optimiser,
+        options,
+        save,
+        ARTIFACTS_DIR=None,
+        MODEL_NAME=None,
+        DATA_DIR=None,
+        RUN_ID=None
+        ):
     
+
     if ARTIFACTS_DIR is None:
         ARTIFACTS_DIR = os.environ.get("ARTIFACTS_DIR")
     if MODEL_NAME is None:
         MODEL_NAME = os.environ.get("MODEL_NAME")
     if DATA_DIR is None:
         DATA_DIR = os.environ.get("DATA_DIR")
+    if RUN_ID is None:
+        RUN_ID = os.environ.get("RUN_ID")
 
     # Model architecture
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(options["timesteps"], x_train.shape[2])),
         tf.keras.layers.LSTM(options["layer1_units"],
-                             return_sequences=True,
+                             return_sequences=False,
                              dropout=options["dropout"],
-                             recurrent_dropout=options["recurrent_dropout"],
+                             #recurrent_dropout=options["recurrent_dropout"],
                              kernel_regularizer=tf.keras.regularizers.l2(options["kernel_regulariser"])),
-        tf.keras.layers.Dropout(options["dropout"]),
-        tf.keras.layers.LSTM(options["layer2_units"],
-                             dropout=options["dropout"],
-                             recurrent_dropout=options["recurrent_dropout"],
-                             kernel_regularizer=tf.keras.regularizers.l2(options["kernel_regulariser"])),
-        tf.keras.layers.Dropout(options["dropout"]),
-        tf.keras.layers.Dense(8, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
 
@@ -78,7 +77,7 @@ def LSTM(x_train, x_test, y_train, y_test,
     epoch_dict = {
         "run_id": run_id
     }
-    csv_logger = configure.CSVLogger(f"{DATA_DIR}/epoch_logs.csv", epoch_dict)
+    csv_logger = configure.CSVLogger(f"{DATA_DIR}/{RUN_ID}/epoch_logs.jsonl", epoch_dict)
 
     # Train the model
     history = model.fit(
@@ -91,9 +90,10 @@ def LSTM(x_train, x_test, y_train, y_test,
         class_weight=class_weight
     )
 
-    with open(f"{DATA_DIR}/epoch_logs.csv", 'a') as f:
+    with open(f"{DATA_DIR}/{RUN_ID}/epoch_logs.jsonl", 'a') as f:
         f.write("\n")
 
-    model.save(f"{ARTIFACTS_DIR}/{MODEL_NAME}", save_format="tf")   # Save model artifacts
+    if save == True:
+        model.save(f"{ARTIFACTS_DIR}/{MODEL_NAME}/{RUN_ID}", save_format="tf")   # Save model artifacts
 
     return model, history

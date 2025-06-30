@@ -45,10 +45,11 @@ def confusion(y_test, y_pred_labels, DATA_DIR=None):
 
 
 # Create classification report
-def classification(y_test, y_pred_labels, DATA_DIR=None):
+def classification(y_test, y_pred_labels, DATA_DIR=None, RUN_ID=None):
 
-    if DATA_DIR is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
+    if DATA_DIR or RUN_ID is None:
+        DATA_DIR = os.environ.get("DATA_DIR", -1)
+        RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
 
     # Compute classification report
     cr = classification_report(
@@ -57,5 +58,5 @@ def classification(y_test, y_pred_labels, DATA_DIR=None):
         output_dict=True 
     )
 
-    with open(f"{DATA_DIR}/classification_report.json", "w") as f:
+    with open(f"{DATA_DIR}/{RUN_ID}/classification_report.json", "w") as f:
         json.dump(cr, f, indent=4)
