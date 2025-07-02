@@ -30,8 +30,8 @@ test_account = test_client.get_account()
 df_options = {                         # df options for retrieving klines
     "pair": "ETHUSDT",                 # Pair to trade
     "kline_period": "2h",              # Period of klines
-    "timeframe": "720 days ago UTC",   # Timeframe of kline data
-    "future_window": 5,                # How far into future to consider for pct change
+    "timeframe": "1440 days ago UTC",   # Timeframe of kline data
+    "future_window": 10,                # How far into future to consider for pct change
 }
 
 # Use the defined options to retrieve dataframe of binance data
@@ -63,8 +63,8 @@ features = df[
     ] ]
 
 binance_options = {
-    "binance_options":  df_options,
-    "features":         list(features.columns),
+     "binance_options":  df_options,
+     "features":         list(features.columns),
     }
 
 if not os.path.exists(f"{DATA_DIR}/binance_options.jsonl"):
@@ -79,7 +79,7 @@ x_train, x_test, y_train, y_test = configure.splitData(features, labels, test_sp
 
 for index1, batch_size in enumerate([64]):
     for index2, timestep in enumerate([24]):
-        for index3, regulariser in enumerate([0.2]):
+        for index3, regulariser in enumerate([0.02]):
             for index4, learning_rate in enumerate([0.0005]):
 
                 # Set up unique hash for loop
@@ -93,14 +93,15 @@ for index1, batch_size in enumerate([64]):
                 # Defune the systems hyperparameters
                 hyperparameters = {
                     "layer1_units": 32, # Iterating over
-                    "dropout": 0.2, # Move from 0.1 to 0.5
+                    "dropout": 0.35, # Move from 0.1 to 0.5
+                    "recurrent_dropout": 0.05,
                     "kernel_regulariser": regulariser,
                     "timesteps": timestep,
                     "validation_split": 0.3,
                     "epochs": 20,
                     "batch_size": batch_size,
                     "optimiser": "adam",
-                    "learning_rate": 0.005,
+                    "learning_rate": 0.0005,
                     "loss": "binary_crossentropy",
                     "patience": 5,
                     "probability_id": 0.5,

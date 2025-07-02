@@ -24,13 +24,21 @@ def gpuConfig(intra=4, inter=2): # Don't change intra and inter unless you know 
     return gpus
 
 
+# Split data into test and training
 def splitData(features, labels, test_split):
 
-    scaler = StandardScaler()           # Scale features to zero mean, unit variance
-    x = scaler.fit_transform(features)  # NxM array where N is amount of data points per indicator and M is the number of indicators
-    y = labels.values                   # Store of binary classifier -> Model prediction
+    # Splits data, no shuffling and consistant in time Train on: 80% of the data and test on the other 20%
+    x_train, x_test, y_train, y_test = train_test_split(
+        features, labels.values,
+        test_size=test_split,
+        shuffle=False
+        )
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_split, shuffle=False) # Splits data, no shuffling and consistant in time Train on: 80% of the data and test on the other 20%
+    # Scale features to zero mean, unit variance
+    scaler = StandardScaler()
+    # NxM array where N is amount of data points per indicator and M is the number of features
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
 
     return x_train, x_test, y_train, y_test
 

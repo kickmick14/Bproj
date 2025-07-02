@@ -38,7 +38,7 @@ def LSTM(
         tf.keras.layers.LSTM(options["layer1_units"],
                              return_sequences=False,
                              dropout=options["dropout"],
-                             #recurrent_dropout=options["recurrent_dropout"],
+                             # recurrent_dropout=options["recurrent_dropout"],
                              kernel_regularizer=tf.keras.regularizers.l2(options["kernel_regulariser"])),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
