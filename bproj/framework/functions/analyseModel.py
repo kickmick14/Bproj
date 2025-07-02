@@ -63,3 +63,19 @@ def classification(y_test, y_pred_labels, DATA_DIR=None, RUN_ID=None):
 
     with open(f"{DATA_DIR}/{RUN_ID}/classification_report.json", "w") as f:
         json.dump(cr, f, indent=4)
+
+
+# Evaluate model based on test data
+def evaluation(model, x_test, y_test):
+
+    loss, accuracy, auc, precision, recall = model.evaluate(x_test, y_test)
+    print(f"\nLoss: {loss}\nAccuracy: {accuracy}\nAUC: {auc}\n")
+
+    return loss, accuracy, auc, precision, recall
+
+def model_predict(model, x_test, probability):
+
+    y_pred = model.predict(x_test)                          # Feeds x_test into model to make binary predictions on it
+    y_pred_labels = (y_pred > probability).astype(int)      # Sigmoid output greater than 0.5 indicates it predicts an increase, save as binary 2
+
+    return y_pred, y_pred_labels

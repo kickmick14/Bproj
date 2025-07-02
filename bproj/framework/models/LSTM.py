@@ -13,7 +13,7 @@ import os
 
 # Model function to be called elsewhere
 def LSTM(
-        x_train, x_test, y_train, y_test,
+        x_train, y_train,
         optimiser,
         options,
         save,
@@ -43,7 +43,7 @@ def LSTM(
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
 
-    # Compile loss function, optimizer and the metrics for the model
+    # Compile loss function, optimiser and the metrics for the model
     model.compile(
         loss=options["loss"],
         optimizer=optimiser,
@@ -84,7 +84,6 @@ def LSTM(
         epochs=options["epochs"],
         batch_size=options["batch_size"],
         callbacks=[csv_logger, early_stop],
-        validation_data=(x_test, y_test),
         class_weight=class_weight
     )
 

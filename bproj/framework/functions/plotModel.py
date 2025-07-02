@@ -94,17 +94,15 @@ def ROC_curve(fpr, tpr, auc, DATA_DIR=None, RUN_ID=None):
     plt.clf()
 
 
-def prediction_histo(y_pred, DATA_DIR=None, RUN_ID=None):
+def prediction_histo(y_pred, y_pred_mean, DATA_DIR=None, RUN_ID=None):
 
     if DATA_DIR is None:
         DATA_DIR = os.environ.get("DATA_DIR", -1)
     if RUN_ID is None:
         RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
 
-    mean_pred = np.mean(y_pred)
-
     plt.hist(y_pred, bins=50, alpha=0.7, label="Predictions")
-    plt.axvline(mean_pred, color='red', linestyle='dashed', linewidth=2, label=f"Mean: {mean_pred:.3f}")
+    plt.axvline(y_pred_mean, color='red', linestyle='dashed', linewidth=2, label=f"Mean: {y_pred_mean:.3f}")
     plt.xlabel('Prediction Probabilities')
     plt.ylabel('Entries')
     plt.title('Prediction  Histogram')

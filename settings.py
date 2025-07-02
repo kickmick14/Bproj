@@ -26,6 +26,7 @@ DATA_DIR = Path(
     os.environ.get("DATA_DIR", BASE_DIR / "data" / MODEL_NAME)
 ).resolve()
 os.environ.setdefault("DATA_DIR", str(DATA_DIR))
+os.makedirs(f"{DATA_DIR}", exist_ok=True)
 
 # 5) Credentials / settings path
 CREDENTIALS_PATH = Path(

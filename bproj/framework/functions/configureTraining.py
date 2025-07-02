@@ -24,14 +24,6 @@ def gpuConfig(intra=4, inter=2): # Don't change intra and inter unless you know 
     return gpus
 
 
-def model_predict(model, x_test, probability):
-
-    y_pred = model.predict(x_test)                  # Feeds x_test into model to make binary predictions on it
-    y_pred_labels = (y_pred > probability).astype(int)      # Sigmoid output greater than 0.5 indicates it predicts an increase, save as binary 2
-
-    return y_pred, y_pred_labels
-
-
 def splitData(features, labels, test_split):
 
     scaler = StandardScaler()           # Scale features to zero mean, unit variance
