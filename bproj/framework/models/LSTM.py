@@ -34,13 +34,22 @@ def LSTM(
 
     # Model architecture
     model = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(options["timesteps"], x_train.shape[2])),
-        tf.keras.layers.LSTM(options["layer1_units"],
-                             return_sequences=False,
-                             dropout=options["dropout"],
-                             # recurrent_dropout=options["recurrent_dropout"],
-                             kernel_regularizer=tf.keras.regularizers.l2(options["kernel_regulariser"])),
-        tf.keras.layers.Dense(1, activation='sigmoid')
+        tf.keras.layers.Input(shape=(options["timesteps"], x_train.shape[2] ) ),
+
+        tf.keras.layers.LSTM(
+            options["layer1_units"],
+            return_sequences=True,
+            dropout=options["dropout"],
+            kernel_regularizer=tf.keras.regularizers.l2(options["kernel_regulariser"] ) ),
+
+        tf.keras.layers.LSTM(
+            options["layer2_units"],
+            return_sequences=False,
+            dropout=options["dropout"],
+            kernel_regularizer=tf.keras.regularizers.l2(options["kernel_regulariser"] ) ),
+
+        tf.keras.layers.Dense(
+            1, activation='sigmoid' )
     ])
 
     # Compile loss function, optimiser and the metrics for the model

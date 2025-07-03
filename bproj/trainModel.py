@@ -72,98 +72,95 @@ if not os.path.exists(f"{DATA_DIR}/binance_options.jsonl"):
 
 # Binary classifier
 labels = df["label"]
-# Fraction of data taken for training
-test_split  = 0.3
+# Fraction of data taken for post training testing
+test_split  = 0.2
 # Split data for training and testing
 x_train, x_test, y_train, y_test = configure.splitData(features, labels, test_split)
 
-for index1, batch_size in enumerate([64]):
-    for index2, timestep in enumerate([24]):
-        for index3, regulariser in enumerate([0.02]):
-            for index4, learning_rate in enumerate([0.0005]):
 
-                # Set up unique hash for loop
-                RUN_ID = uuid.uuid4().hex[:8]
-                os.environ.setdefault("RUN_ID", str(RUN_ID))
-                os.makedirs(f"{DATA_DIR}/{RUN_ID}/plots", exist_ok=True)
-                
-                # Get starting time
-                now = datetime.now().strftime("%H:%M:%S")
+# Set up unique hash for loop
+RUN_ID = uuid.uuid4().hex[:8]
+os.environ.setdefault("RUN_ID", str(RUN_ID))
+os.makedirs(f"{DATA_DIR}/{RUN_ID}/plots", exist_ok=True)
 
-                # Defune the systems hyperparameters
-                hyperparameters = {
-                    "layer1_units": 32, # Iterating over
-                    "dropout": 0.35, # Move from 0.1 to 0.5
-                    "recurrent_dropout": 0.05,
-                    "kernel_regulariser": regulariser,
-                    "timesteps": timestep,
-                    "validation_split": 0.3,
-                    "epochs": 20,
-                    "batch_size": batch_size,
-                    "optimiser": "adam",
-                    "learning_rate": 0.0005,
-                    "loss": "binary_crossentropy",
-                    "patience": 5,
-                    "probability_id": 0.5,
-                    }
+# Get starting time
+now = datetime.now().strftime("%H:%M:%S")
 
-                # Define the optimiser
-                optimiser = tf.keras.optimizers.Adam(learning_rate=hyperparameters["learning_rate"])
+# Defune the systems hyperparameters
+hyperparameters = {
+    "layer1_units": 64,
+    "layer2_units": 8,
+    "dropout": 0.30, # Move from 0.1 to 0.5
+    "recurrent_dropout": "N/A",
+    "kernel_regulariser": 0.02,
+    "timesteps": 12,
+    "validation_split": 0.3,
+    "epochs": 50,
+    "batch_size": 48,
+    "optimiser": "adam",
+    "learning_rate": 0.0005,
+    "loss": "binary_crossentropy",
+    "patience": 5,
+    "probability_id": 0.5,
+    }
 
-                # Reshape for LSTM
-                x_train, y_train = shaper.reshape_for_lstm(x_train, y_train, hyperparameters["timesteps"])
-                x_test, y_test   = shaper.reshape_for_lstm(x_test, y_test, hyperparameters["timesteps"])
-                # Train model on the split data
-                model, history   = framework.LSTM(x_train, y_train, optimiser, hyperparameters, save=False, RUN_ID=RUN_ID)
+# Define the optimiser
+optimiser = tf.keras.optimizers.Adam(learning_rate=hyperparameters["learning_rate"])
 
-                # Evaluate the model using test data
-                eval_loss, eval_accuracy, eval_auc, eval_precision, eval_recall = analyse.evaluation(model, x_test, y_test)
-                # Make predictions using test data
-                y_pred, y_pred_labels = analyse.model_predict(model, x_test, hyperparameters["probability_id"])
-                # Retrieve metrics using sklearn
-                fpr, tpr, sklearn_auc, thresholds = analyse.AUCandROCcurve(y_test, y_pred)
-                # Calculate the average out the models output probabilities
-                y_pred_mean = np.mean(y_pred)
+# Reshape for LSTM
+x_train, y_train = shaper.reshape_for_lstm(x_train, y_train, hyperparameters["timesteps"])
+x_test, y_test   = shaper.reshape_for_lstm(x_test, y_test, hyperparameters["timesteps"])
+# Train model on the split data
+model, history   = framework.LSTM(x_train, y_train, optimiser, hyperparameters, save=False, RUN_ID=RUN_ID)
 
-                print(f"\tRUN {index1+1, index2+1, index3+1, index4+1} HASH\n->->->->-> {RUN_ID} <-<-<-<-<-")
+# Evaluate the model using test data
+eval_loss, eval_accuracy, eval_auc, eval_precision, eval_recall = analyse.evaluation(model, x_test, y_test)
+# Make predictions using test data
+y_pred, y_pred_labels = analyse.model_predict(model, x_test, hyperparameters["probability_id"])
+# Retrieve metrics using sklearn
+fpr, tpr, sklearn_auc, thresholds = analyse.AUCandROCcurve(y_test, y_pred)
+# Calculate the average out the models output probabilities
+y_pred_mean = np.mean(y_pred)
 
-                # Plotting output
-                plot.plotter(history.history["accuracy"], "Train Acc", history.history["val_accuracy"], "Val Acc", "Epoch", "Accuracy", "Traing vs Validation Accuracy", "accuracy", RUN_ID=RUN_ID)
-                plot.plotter(history.history["loss"], "Train Loss", history.history["val_loss"], "Val Loss", "Epoch", "Loss", "Traing vs Validation Loss", "loss", RUN_ID=RUN_ID)
-                plot.plotter(history.history["auc"], "Train AUC", history.history["val_auc"], "Val AUC", "Epoch", "AUC", "Traing vs Validation AUC", "AUC", RUN_ID=RUN_ID)
-                plot.plotter(history.history["precision"], "Train Precision", history.history["val_precision"], "Val Precision", "Epoch", "Precision", "Traing vs Validation Precision", "precision", RUN_ID=RUN_ID)
-                plot.plotter(history.history["recall"], "Train Recall", history.history["val_recall"], "Val Recall", "Epoch", "Recall", "Traing vs Validation Recall", "recall", RUN_ID=RUN_ID)
-                plot.validation_combined(history, RUN_ID=RUN_ID)
-                plot.ROC_curve(fpr, tpr, sklearn_auc, RUN_ID=RUN_ID)
-                plot.prediction_histo(y_pred, y_pred_mean, RUN_ID=RUN_ID)
+print(f"\tRUN HASH\n->->->->-> {RUN_ID} <-<-<-<-<-")
 
-                # Create classification report
-                analyse.classification(y_test, y_pred_labels, RUN_ID=RUN_ID)
-                # Create confusion matrix
-                analyse.confusion(y_test, y_pred_labels, RUN_ID=RUN_ID)
+# Plotting output
+plot.plotter(history.history["accuracy"], "Train Acc", history.history["val_accuracy"], "Val Acc", "Epoch", "Accuracy", "Traing vs Validation Accuracy", "accuracy", RUN_ID=RUN_ID)
+plot.plotter(history.history["loss"], "Train Loss", history.history["val_loss"], "Val Loss", "Epoch", "Loss", "Traing vs Validation Loss", "loss", RUN_ID=RUN_ID)
+plot.plotter(history.history["auc"], "Train AUC", history.history["val_auc"], "Val AUC", "Epoch", "AUC", "Traing vs Validation AUC", "AUC", RUN_ID=RUN_ID)
+plot.plotter(history.history["precision"], "Train Precision", history.history["val_precision"], "Val Precision", "Epoch", "Precision", "Traing vs Validation Precision", "precision", RUN_ID=RUN_ID)
+plot.plotter(history.history["recall"], "Train Recall", history.history["val_recall"], "Val Recall", "Epoch", "Recall", "Traing vs Validation Recall", "recall", RUN_ID=RUN_ID)
+plot.validation_combined(history, RUN_ID=RUN_ID)
+plot.ROC_curve(fpr, tpr, sklearn_auc, RUN_ID=RUN_ID)
+plot.prediction_histo(y_pred, y_pred_mean, RUN_ID=RUN_ID)
 
-                # Logging 
-                end = datetime.now().strftime("%H:%M:%S")
-                log_dict = {
-                    "run_id":                  RUN_ID,
-                    "history_train_loss":      round(history.history["loss"][-1], 4),
-                    "history_val_loss":        round(history.history["val_loss"][-1], 4),
-                    "eval_test_loss":          round(eval_loss, 4),
-                    "history_train_accuracy":  round(history.history["accuracy"][-1], 4),
-                    "history_val_accuracy":    round(history.history["val_accuracy"][-1], 4),
-                    "eval_test_accuracy":      round(eval_accuracy, 4),
-                    "history_train_auc":       round(history.history["auc"][-1], 4),
-                    "history_val_auc":         round(history.history["val_auc"][-1], 4),
-                    "eval_test_auc":           round(eval_auc, 4),
-                    "prediction_mean":         float(y_pred_mean),
-                    "start":                   now,
-                    "end":                     end,
-                    "hyperparameters":         hyperparameters,
-                    "notes":                   "No notes"
-                }
-                configure.log_to_json(f"{DATA_DIR}/model_logs.jsonl", log_dict)
-                with open(f"{DATA_DIR}/model_logs.jsonl", "a") as f:
-                        f.write("\n")
-                
-                backend.clear_session()
-                gc.collect()
+# Create classification report
+analyse.classification(y_test, y_pred_labels, RUN_ID=RUN_ID)
+# Create confusion matrix
+analyse.confusion(y_test, y_pred_labels, RUN_ID=RUN_ID)
+
+# Logging 
+end = datetime.now().strftime("%H:%M:%S")
+log_dict = {
+    "run_id":                  RUN_ID,
+    "history_train_loss":      round(history.history["loss"][-1], 4),
+    "history_val_loss":        round(history.history["val_loss"][-1], 4),
+    "eval_test_loss":          round(eval_loss, 4),
+    "history_train_accuracy":  round(history.history["accuracy"][-1], 4),
+    "history_val_accuracy":    round(history.history["val_accuracy"][-1], 4),
+    "eval_test_accuracy":      round(eval_accuracy, 4),
+    "history_train_auc":       round(history.history["auc"][-1], 4),
+    "history_val_auc":         round(history.history["val_auc"][-1], 4),
+    "eval_test_auc":           round(eval_auc, 4),
+    "prediction_mean":         float(y_pred_mean),
+    "start":                   now,
+    "end":                     end,
+    "hyperparameters":         hyperparameters,
+    "notes":                   "No notes"
+}
+configure.log_to_json(f"{DATA_DIR}/model_logs.jsonl", log_dict)
+with open(f"{DATA_DIR}/model_logs.jsonl", "a") as f:
+        f.write("\n")
+
+backend.clear_session()
+gc.collect()
