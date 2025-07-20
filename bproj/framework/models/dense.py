@@ -10,7 +10,12 @@ from sklearn.utils.class_weight import compute_class_weight
 import os
 
 
-def basic(x_train, x_test, y_train, y_test, ARTIFACTS_DIR=None, MODEL_NAME=None):
+def basic(
+        x_train,
+        x_test, 
+        y_train, 
+        y_test
+        ):
 
     model = tf.keras.Sequential([                                                           # Network architecture - feed forward, linear neural networks layer by layer
         tf.keras.layers.Dense(128, activation='relu', input_shape=(x_train.shape[1],)),
@@ -47,9 +52,5 @@ def basic(x_train, x_test, y_train, y_test, ARTIFACTS_DIR=None, MODEL_NAME=None)
         callbacks=[early_stop],
         validation_data=(x_test, y_test)  # Set validation data
         )
-    
-    if ARTIFACTS_DIR and MODEL_NAME is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)  # or raise a clear error
-    model.save(f"{ARTIFACTS_DIR}/{MODEL_NAME}", save_format="tf")   # Save model artifacts
 
     return model, history

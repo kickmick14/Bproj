@@ -1,12 +1,14 @@
 #######################################
 # @author Michael Kane
 # @date 27/06/2025
-# Code for shaping data inputs
+# Creation of indicators and functions
+# for manipulating them
 #######################################
 import numpy as np
 import pandas as pd
 
-def indicators(
+# Get indicator data using market information
+def get(
     df: pd.DataFrame,
     threshold: float,
     RSI_window: int,
@@ -116,7 +118,7 @@ def indicators(
 def reshape_for_lstm(
         x,
         y,
-        timesteps
+        timesteps: int
         )->np.array:
 
     x_lstm, y_lstm = [], []

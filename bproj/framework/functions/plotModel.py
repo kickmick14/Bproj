@@ -5,7 +5,6 @@
 #######################################
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
 import os
 
 
@@ -13,13 +12,11 @@ def plotter(
         y1, name1, 
         y2, name2, 
         x_axis, y_axis, 
-        title, savename, DATA_DIR=None, RUN_ID=None
+        title, savename, INSTANCE_DIR=None
         ):
 
-    if DATA_DIR is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
-    if RUN_ID is None:
-        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
+    if INSTANCE_DIR is None:
+        INSTANCE_DIR = os.environ.get("INSTANCE_DIR", -1) # or raise error
 
     plt.plot(y1, label=name1)
     plt.plot(y2, label=name2)
@@ -27,16 +24,17 @@ def plotter(
     plt.ylabel(y_axis)
     plt.legend()
     plt.title(title)
-    plt.savefig(f"{DATA_DIR}/{RUN_ID}/plots/{savename}.png")
+    plt.savefig(f"{INSTANCE_DIR}/plots/{savename}.png")
     plt.clf()
 
 
-def validation_combined(history, DATA_DIR=None, RUN_ID=None):
+def validation_combined(
+        history,
+        INSTANCE_DIR=None
+        ):
 
-    if DATA_DIR is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
-    if RUN_ID is None:
-        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
+    if INSTANCE_DIR is None:
+        INSTANCE_DIR = os.environ.get("INSTANCE_DIR", -1) # or raise error
 
     plt.plot(history.history['val_precision'], label='Val Precision')
     plt.plot(history.history['val_recall'], label='Val Recall')
@@ -44,17 +42,19 @@ def validation_combined(history, DATA_DIR=None, RUN_ID=None):
     plt.xlabel('Epoch')
     plt.title('Validation Precision, Recall, and AUC')
     plt.legend()
-    plt.savefig(f"{DATA_DIR}/{RUN_ID}/plots/validation_combined.png")
+    plt.savefig(f"{INSTANCE_DIR}/plots/validation_combined.png")
     plt.clf()
 
 
 # Plot scikit learn confusion matrix information
-def confusion(cm, ClassNames=["0", "1"], DATA_DIR=None, RUN_ID=None):
+def confusion(
+        cm,
+        ClassNames=["0", "1"],
+        INSTANCE_DIR=None
+        ):
 
-    if DATA_DIR is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
-    if RUN_ID is None:
-        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
+    if INSTANCE_DIR is None:
+        INSTANCE_DIR = os.environ.get("INSTANCE_DIR", -1) # or raise error
 
     fig, ax = plt.subplots(figsize=(6,5))
     sns.heatmap(
@@ -70,16 +70,19 @@ def confusion(cm, ClassNames=["0", "1"], DATA_DIR=None, RUN_ID=None):
     ax.set_xlabel("Predicted")
     ax.set_ylabel("Actual")
     ax.set_title("Confusion Matrix")
-    fig.savefig(f"{DATA_DIR}/{RUN_ID}/plots/confusion_matrix.png", bbox_inches="tight")
+    fig.savefig(f"{INSTANCE_DIR}/plots/confusion_matrix.png", bbox_inches="tight")
     plt.clf()
 
 
-def ROC_curve(fpr, tpr, auc, DATA_DIR=None, RUN_ID=None):
+def ROC_curve(
+        fpr, 
+        tpr, 
+        auc, 
+        INSTANCE_DIR=None
+        ):
 
-    if DATA_DIR is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1) # or raise a clear error
-    if RUN_ID is None:
-        RUN_ID = os.environ.get("RUN_ID", -1) # or raise a clear error
+    if INSTANCE_DIR is None:
+        INSTANCE_DIR = os.environ.get("INSTANCE_DIR", -1) # or raise error
 
     plt.figure()
     plt.plot(fpr, tpr, label=f'ROC curve (AUC = {auc:.4f})')
@@ -90,16 +93,18 @@ def ROC_curve(fpr, tpr, auc, DATA_DIR=None, RUN_ID=None):
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc="lower right")
-    plt.savefig(f"{DATA_DIR}/{RUN_ID}/plots/ROC_curve.png")
+    plt.savefig(f"{INSTANCE_DIR}/plots/ROC_curve.png")
     plt.clf()
 
 
-def prediction_histo(y_pred, y_pred_mean, DATA_DIR=None, RUN_ID=None):
+def prediction_histo(
+        y_pred, 
+        y_pred_mean, 
+        INSTANCE_DIR=None
+        ):
 
-    if DATA_DIR is None:
-        DATA_DIR = os.environ.get("DATA_DIR", -1)
-    if RUN_ID is None:
-        RUN_ID = os.environ.get("RUN_ID", -1)  # or raise a clear error
+    if INSTANCE_DIR is None:
+        INSTANCE_DIR = os.environ.get("INSTANCE_DIR", -1)  # or raise error
 
     plt.hist(y_pred, bins=50, alpha=0.7, label="Predictions")
     plt.axvline(y_pred_mean, color='red', linestyle='dashed', linewidth=2, label=f"Mean: {y_pred_mean:.3f}")
@@ -107,5 +112,5 @@ def prediction_histo(y_pred, y_pred_mean, DATA_DIR=None, RUN_ID=None):
     plt.ylabel('Entries')
     plt.title('Prediction  Histogram')
     plt.legend()
-    plt.savefig(f"{DATA_DIR}/{RUN_ID}/plots/prediction_histo.png")
+    plt.savefig(f"{INSTANCE_DIR}/plots/prediction_histo.png")
     plt.clf()

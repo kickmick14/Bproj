@@ -1,9 +1,5 @@
-# model artifacts
-artifacts/
-
 # settings
 config/settings.json
-.env
 *.key
 *.pem
 
@@ -11,6 +7,5 @@ config/settings.json
 *.log
 *.png
 __pycache__/
-TrainingPlots/
-data/
+outputs/
 *.egg-info/
