@@ -4,6 +4,7 @@ config/settings.json
 *.pem
 
 # Outputs, caches & metainfo
+*.DS_Store
 *.log
 *.png
 __pycache__/
